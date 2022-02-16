@@ -17,43 +17,59 @@ public class EventBuilderMenu implements Menu {
     }
 
     private void buildEventOfTypeX() {
-        String response;
-        MenuPrinter.printMenuWithCancel("""
-                    Add event:
-                    What type of event is this?
-                    a) Default event
-                    b) Reminder
-                    c) Todo
-                    d) Daily reminder
-                    e) Diary entry
-                    """);
-        response = scan.nextLine();
+        String response = queryTypeOfEvent();
+
         if (response.equals("cancel")) MenuPrinter.printCancellationScreen(
                 "Cancelled addition of event", 15, 5
         );
 
         switch (response) {
-            case "a" -> Planner.addEvent(buildDefaultEvent(true, true));
+            case "a" -> Planner.addEvent(buildDefaultEvent());
             case "b" -> Planner.addEvent(buildReminder());
             case "c" -> Planner.addEvent(buildTodo());
             case "d" -> Planner.addEvent(buildDailyReminder());
             case "e" -> Planner.addEvent(buildDiaryEntry());
-            default -> MenuPrinter.printCancellationScreen(
+
+            default -> MenuPrinter.printCancellationScreen("" +
                     "Cancelled addition of event due to invalid input", 15, 5
             );
         }
     }
 
+    private String queryTypeOfEvent() {
+        MenuPrinter.printMenuWithCancel("""
+                Add event:
+                What type of event is this?
+                a) Default event
+                b) Reminder
+                c) Todo
+                d) Daily reminder
+                e) Diary entry
+                """);
+        return scan.nextLine();
+    }
+
+    private Event buildDefaultEvent() {
+        return buildDefaultEvent(true, true);
+    }
+
     private Event buildDefaultEvent(boolean hasEndTime, boolean hasDescription) {
-            var eventBuilder = new Event.Builder();
+        Event event = new Event();
         try {
-            setStartTime(eventBuilder);
-            setEndTime(eventBuilder, hasEndTime);
-            setTitle(eventBuilder);
-            setDescription(eventBuilder, hasDescription);
-            return eventBuilder.build();
+
+            if (!setStartTime(event)
+                    || !setEndTime(event, hasEndTime)
+                    || !setTitle(event)
+                    || !setDescription(event, hasDescription)
+            ) {
+                MenuPrinter.errorScreen("Error with adding event to the planner");
+                return null;
+            }
+
+            return event.build();
 
         } catch (ParseException ignored) {
+            MenuPrinter.errorScreen("Error with parsing date; did you enter the right format?");
             return null;
         }
     }
@@ -64,7 +80,11 @@ public class EventBuilderMenu implements Menu {
 
     private Todo buildTodo() {
         Todo todo = new Todo(buildDefaultEvent(false, false));
-        setTodo(todo);
+
+        if (!setTodo(todo)) {
+            return null;
+        }
+
         return todo;
     }
 
@@ -73,66 +93,101 @@ public class EventBuilderMenu implements Menu {
     }
 
     private DiaryEntry buildDiaryEntry() {
-        return new DiaryEntry(buildDiaryEntry());
+        return new DiaryEntry(buildDefaultEvent());
     }
 
-    private void setStartTime(Event.Builder eventBuilder) throws ParseException {
+    private boolean setStartTime(Event event) throws ParseException {
         MenuPrinter.printMenuWithCancel("" +
-                                        "Add event:\n" +
-                                        "When does this event start?\n" +
-                                        "The current format is " + DateManager.getFormatter());
-
-        eventBuilder.setStartTime(DateManager.toUnixTimestamp(scan.nextLine()));
-    }
-
-    private void setEndTime(Event.Builder eventBuilder, boolean hasEndTime) throws ParseException {
-        if (!hasEndTime) {
-            return;
-        }
-
-        MenuPrinter.printMenuWithCancel("" +
-                                        "Add event:\n" +
-                                        "When does this event end?\n" +
-                                        "The current format is " + DateManager.getFormatter() +
-                                        "\nType \"null\" if it's a one-time event instead of a period of time");
+                "Add event:\n" +
+                "When does this event start?\n" +
+                "The current format is " + DateManager.getFormatter());
 
         String response = scan.nextLine();
-        if (response.equalsIgnoreCase("null")) return;
-        eventBuilder.setEndTime(DateManager.toUnixTimestamp(scan.nextLine()));
+
+        if (response.equalsIgnoreCase("cancel")) {
+            return false;
+        }
+
+        event.setStartTime(DateManager.toUnixTimestamp(response));
+        return true;
     }
 
-    private void setTitle(Event.Builder eventBuilder) throws ParseException {
-        MenuPrinter.printMenuWithCancel("" +
-                                        "Add event:\n" +
-                                        "What is the title of this event?");
-
-        eventBuilder.setTitle(scan.nextLine());
-    }
-
-    private void setDescription(Event.Builder eventBuilder, boolean hasDescription) throws ParseException {
-        if (!hasDescription) {
-            return;
+    private boolean setEndTime(Event event, boolean hasEndTime) throws ParseException {
+        if (!hasEndTime) {
+            return true;
         }
 
         MenuPrinter.printMenuWithCancel("" +
-                                        "Add event:\n" +
-                                        "What is the description of this event?");
+                "Add event:\n" +
+                "When does this event end?\n" +
+                "The current format is " + DateManager.getFormatter() +
+                "\nType \"null\" if it's a one-time event instead of a period of time");
 
-        eventBuilder.setDescription(scan.nextLine());
+        String response = scan.nextLine();
+
+        if (response.equalsIgnoreCase("cancel")) {
+            return false;
+        }
+
+        if (response.equalsIgnoreCase("null")) {
+            return true;
+        }
+
+        event.setEndTime(DateManager.toUnixTimestamp(response));
+        return true;
     }
 
-    private void setTodo(Todo todo) {
+    private boolean setTitle(Event event) throws ParseException {
+        MenuPrinter.printMenuWithCancel("" +
+                "Add event:\n" +
+                "What is the title of this event?");
+
+        String response = scan.nextLine();
+
+        if (response.equalsIgnoreCase("cancel")) {
+            return false;
+        }
+
+        event.setTitle(response);
+        return true;
+    }
+
+    private boolean setDescription(Event event, boolean hasDescription) throws ParseException {
+        if (!hasDescription) {
+            return true;
+        }
+
+        MenuPrinter.printMenuWithCancel("" +
+                "Add event:\n" +
+                "What is the description of this event?");
+
+        String response = scan.nextLine();
+
+        if (response.equalsIgnoreCase("cancel")) {
+            return false;
+        }
+
+        event.setDescription(response);
+        return true;
+    }
+
+    private boolean setTodo(Todo todo) {
         String response;
         while (true) {
             MenuPrinter.printMenuWithCancel("" +
-                                            "Add event:\n" +
-                                            "What is the description of this event?");
+                    "Add event:\n" +
+                    "What is the description of this event?");
 
             response = scan.nextLine();
+
+            if (response.equalsIgnoreCase("cancel")) {
+                return false;
+            }
             if (response.equalsIgnoreCase("end")) {
                 break;
             }
             todo.addTodo(response);
         }
+        return true;
     }
 }

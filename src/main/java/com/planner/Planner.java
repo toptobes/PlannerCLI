@@ -2,6 +2,7 @@ package com.planner;
 
 import com.planner.Events.Event;
 
+import java.text.ParseException;
 import java.util.TreeMap;
 
 public class Planner {
@@ -9,8 +10,9 @@ public class Planner {
 
     public static <E extends Event> void addEvent(E event) {
         if (event == null) {
-            MenuPrinter.errorScreen("Error with adding event to the planner");
             return;
         }
+
+        planner.put(event.getStartTime(), event);
     }
 }
