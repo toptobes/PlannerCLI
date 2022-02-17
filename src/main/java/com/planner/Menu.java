@@ -1,9 +1,6 @@
 package com.planner;
 
-import com.planner.menus.EventsViewerMenu;
-import com.planner.menus.EventBuilderMenu;
-import com.planner.menus.MainMenu;
-import com.planner.menus.OptionsMenu;
+import com.planner.menus.*;
 
 import java.util.Scanner;
 
@@ -16,10 +13,7 @@ public class Menu {
 
     public static void start() {
         new MainMenu().show();
-        showMenu();
-    }
 
-    private static void showMenu() {
         String input;
 
         do {
@@ -33,7 +27,7 @@ public class Menu {
         switch (input.toLowerCase()) {
             case "view events", "v" -> new EventsViewerMenu().show();
             case "add event", "a" -> new EventBuilderMenu().show();
-            case "remove event", "r" -> {}
+            case "remove event", "r" -> new EventsRemoverMenu().show();
             case "options", "o" -> {}
             case "main menu", "m" -> new MainMenu().show();
         }
