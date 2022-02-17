@@ -10,13 +10,15 @@ import java.util.TreeMap;
 public class Planner {
     private static final Planner instance = new Planner();
 
+    public static Planner getInstance() {
+        return instance;
+    }
+
     private Planner() {
         planner = new TreeMap<>();
     }
 
-    public static Planner getInstance() {
-        return instance;
-    }
+    //---------------------------------------------------------------------------------
 
     private TreeMap<Long, ? super Event> planner;
 
@@ -62,18 +64,19 @@ public class Planner {
         for (Object value : instance.planner.values()) {
 
             if (value instanceof Reminder) {
-                return ((Reminder) value).getTitle();
+                return value.toString();
 
             } else if (value instanceof Todo) {
-                lastTodo = ((Todo) value).getTitle();
+                lastTodo = value.toString();
 
             } else if (value.getClass() == Event.class) {
-                lastEvent = ((Event) value).getTitle();
+                lastEvent = value.toString();
             }
         }
 
         if (lastEvent != null) {
             return lastEvent;
+
         } else if (lastTodo != null) {
             return lastTodo;
         }

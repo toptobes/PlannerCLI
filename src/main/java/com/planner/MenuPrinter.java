@@ -22,7 +22,7 @@ public class MenuPrinter {
                 >\040""");
     }
 
-    public static void errorScreen(String message) {
+    public static void printErrorScreen(String message) {
         printCancellationScreen(message, 3, 1);
     }
 

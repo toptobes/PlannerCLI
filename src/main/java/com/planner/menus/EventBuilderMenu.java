@@ -61,14 +61,14 @@ public class EventBuilderMenu implements Menu {
                     || !setTitle(event)
                     || !setDescription(event, hasDescription)
             ) {
-                MenuPrinter.errorScreen("Error with adding event to the planner");
+                MenuPrinter.printErrorScreen("Error with adding event to the planner");
                 return null;
             }
 
             return event.build();
 
         } catch (ParseException ignored) {
-            MenuPrinter.errorScreen("Error with parsing date; did you enter the right format?");
+            MenuPrinter.printErrorScreen("Error with parsing date; did you enter the right format?");
             return null;
         }
     }
