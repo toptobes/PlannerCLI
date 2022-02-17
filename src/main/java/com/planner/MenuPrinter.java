@@ -7,8 +7,10 @@ import java.util.List;
 
 public class MenuPrinter {
     public static void printMenuWithCancel(String toPrint) {
-        System.out.println("----------------------------------------------------------------------------------------");
-        System.out.println(toPrint);
+        System.out.printf("""
+                    ----------------------------------------------------------------------------------------
+                    %s
+                    """, toPrint);
 
         for (int i = toPrint.split("\n").length; i < 13; i++) {
             System.out.println();
