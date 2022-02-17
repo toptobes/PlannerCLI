@@ -20,7 +20,7 @@ public class EventBuilderMenu implements Menu {
         String response = queryTypeOfEvent();
 
         if (response.equals("cancel")) MenuPrinter.printCancellationScreen(
-                "Cancelled addition of event", 15, 5
+                "Cancelled addition of event", 3, 1
         );
 
         switch (response) {
@@ -31,7 +31,7 @@ public class EventBuilderMenu implements Menu {
             case "e" -> Planner.addEvent(buildDiaryEntry());
 
             default -> MenuPrinter.printCancellationScreen("" +
-                    "Cancelled addition of event due to invalid input", 15, 5
+                    "Cancelled addition of event due to invalid input", 3, 1
             );
         }
     }
@@ -44,8 +44,7 @@ public class EventBuilderMenu implements Menu {
                 b) Reminder
                 c) Todo
                 d) Daily reminder
-                e) Diary entry
-                """);
+                e) Diary entry""");
         return scan.nextLine();
     }
 
@@ -117,11 +116,11 @@ public class EventBuilderMenu implements Menu {
             return true;
         }
 
-        MenuPrinter.printMenuWithCancel("" +
-                "Add event:\n" +
-                "When does this event end?\n" +
-                "The current format is " + DateManager.getFormatter() +
-                "\nType \"null\" if it's a one-time event instead of a period of time");
+        MenuPrinter.printMenuWithCancel("""
+                Add event:
+                When does this event end?
+                The current format is %s
+                Type "null" if it's a one-time event instead of a period of time""".formatted(DateManager.getFormatter()));
 
         String response = scan.nextLine();
 
@@ -138,9 +137,9 @@ public class EventBuilderMenu implements Menu {
     }
 
     private boolean setTitle(Event event) throws ParseException {
-        MenuPrinter.printMenuWithCancel("" +
-                "Add event:\n" +
-                "What is the title of this event?");
+        MenuPrinter.printMenuWithCancel("""
+                Add event:
+                What is the title of this event?""");
 
         String response = scan.nextLine();
 
@@ -157,28 +156,44 @@ public class EventBuilderMenu implements Menu {
             return true;
         }
 
-        MenuPrinter.printMenuWithCancel("" +
-                "Add event:\n" +
-                "What is the description of this event?");
+        String response;
+        StringBuilder description = new StringBuilder();
 
-        String response = scan.nextLine();
+        MenuPrinter.printMenuWithCancel("""
+                Add event:
+                What is the description of this event?
+                You can type up to 7 lines, type end to stop""");
 
-        if (response.equalsIgnoreCase("cancel")) {
-            return false;
+        for (int i = 7; i > 0; i--) {
+            response = scan.nextLine();
+
+            if (i > 1) {
+                System.out.print("> ");
+            }
+            if (response.equalsIgnoreCase("cancel")) {
+                return false;
+            }
+            if (response.equalsIgnoreCase("end")) {
+                break;
+            }
+            description.append(response).append("\n");
         }
 
-        event.setDescription(response);
+        event.setDescription(description.toString());
         return true;
     }
 
     private boolean setTodo(Todo todo) {
         String response;
-        while (true) {
-            MenuPrinter.printMenuWithCancel("" +
-                    "Add event:\n" +
-                    "What is the description of this event?");
 
+        MenuPrinter.printMenuWithCancel("""
+                Add event:
+                What tasks do you need to do? Type "end" to stop""");
+
+        while (true) {
             response = scan.nextLine();
+
+            System.out.print("> ");
 
             if (response.equalsIgnoreCase("cancel")) {
                 return false;

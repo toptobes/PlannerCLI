@@ -8,9 +8,13 @@ public class Todo extends Event {
 
     public Todo(Event event) {
         super(event);
+        setTitleHeader("Quick Description:");
+        setDescriptionHeader("Todo:");
     }
 
     public void addTodo(String todo) {
+        if (this.todo.size() > 7) return;
+
         this.todo.add(todo);
         super.setDescription(getTodoAsString());
     }

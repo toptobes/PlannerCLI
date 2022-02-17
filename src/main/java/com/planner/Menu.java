@@ -1,15 +1,14 @@
 package com.planner;
 
+import com.planner.menus.EventsViewerMenu;
 import com.planner.menus.EventBuilderMenu;
 import com.planner.menus.MainMenu;
 import com.planner.menus.OptionsMenu;
 
-import java.text.ParseException;
-import java.util.Locale;
 import java.util.Scanner;
 
 public class Menu {
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) {
         Menu.start();
     }
 
@@ -24,7 +23,6 @@ public class Menu {
         String input;
 
         do {
-
             new OptionsMenu().show();
             read(input = scan.nextLine());
 
@@ -32,12 +30,12 @@ public class Menu {
     }
 
     private static void read(String input) {
-        switch (input.toLowerCase(Locale.ROOT)) {
-            case "view events" -> {}
-            case "add event" -> new EventBuilderMenu().show();
-            case "remove event" -> {}
-            case "settings" -> {}
-            case "main menu" -> new MainMenu().show();
+        switch (input.toLowerCase()) {
+            case "view events", "v" -> new EventsViewerMenu().show();
+            case "add event", "a" -> new EventBuilderMenu().show();
+            case "remove event", "r" -> {}
+            case "options", "o" -> {}
+            case "main menu", "m" -> new MainMenu().show();
         }
     }
 }
