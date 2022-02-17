@@ -39,8 +39,8 @@ public class EventsViewerMenu implements Menu {
 
             case "next" -> {
                 if (numNext <= 0) return 1;
-                numPrev++;
                 numNext--;
+                numPrev++;
                 current++;
             }
 
