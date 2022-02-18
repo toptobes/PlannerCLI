@@ -52,12 +52,8 @@ public class Planner {
     public static ArrayList<ArrayList<Event>> getPages(int eventsPerPage) {
         ArrayList<Event> events = new ArrayList<>(instance.planner);
 
-        System.out.println(events);
-
         ArrayList<ArrayList<Event>> pages = new ArrayList<>();
         int numPages = getNumPages(events, eventsPerPage);
-
-        System.out.println(numPages);
 
         for (int i = 0; i < numPages; i++)
             pages.add(new ArrayList<>(

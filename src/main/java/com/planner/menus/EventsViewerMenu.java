@@ -5,55 +5,29 @@ import com.planner.MenuPrinter;
 import com.planner.Planner;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Scanner;
 
 public class EventsViewerMenu implements Menu {
     Scanner scan = new Scanner(System.in);
 
-    private final ArrayList<ArrayList<Event>> pages = Planner.getPages(10);
-    private final int numPages = Planner.getNumPages(pages.stream().flatMap(Collection::stream).toList(), 10);
-    private int numPrev = 0, numNext = 0, current = 0;
-
     @Override
     public void show() {
-        numNext = numPages - 1;
-
-        do {
-            MenuPrinter.printListedMenu(pages.get(current), numPrev, numNext);
-
-        } while (evaluateResponse(scan.nextLine()) != 0);
+        while (evaluateResponse(MenuPrinter.printListedEvents(Planner.getPlanner())) != 0);
     }
 
-    @SuppressWarnings("DuplicatedCode")
-    private int evaluateResponse(String response) {
-        response = response.toLowerCase();
+    @SuppressWarnings("unchecked")
+    private int evaluateResponse(Object[] arr) {
+        var response = (String) arr[0];
+        var pages = (ArrayList<ArrayList<Event>>) arr[1];
+        var current = (Integer) arr[2];
 
-        switch (response) {
-            case "end" -> {
-                return 0;
-            }
-
-            case "next" -> {
-                if (numNext <= 0) return 1;
-                numNext--;
-                numPrev++;
-                current++;
-            }
-
-            case "prev" -> {
-                if (numPrev <= 0) return 1;
-                numNext++;
-                numPrev--;
-                current--;
-            }
-        }
         if (!response.matches("\\d+")) return 1;
 
         int responseAsInt = Integer.parseInt(response);
 
         if (0 <= responseAsInt && responseAsInt < pages.get(current).size()) {
             viewEvent(pages.get(current).get(responseAsInt));
+            return 0;
         }
 
         return 1;
