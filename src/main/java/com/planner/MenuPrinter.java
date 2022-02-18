@@ -8,9 +8,9 @@ import java.util.List;
 public class MenuPrinter {
     public static void printMenuWithCancel(String toPrint) {
         System.out.printf("""
-                    ----------------------------------------------------------------------------------------
-                    %s
-                    """, toPrint);
+                ----------------------------------------------------------------------------------------
+                %s
+                """, toPrint);
 
         for (int i = toPrint.split("\n").length; i < 13; i++) {
             System.out.println();
@@ -44,14 +44,14 @@ public class MenuPrinter {
         }
     }
 
-    public static void printListedMenu(List<? super Event> events, int numPrevious, int numNext) {
+    public static void printListedMenu(List<Event> events, int numPrevious, int numNext) {
         System.out.println("----------------------------------------------------------------------------------------");
 
         int i = 0;
-        for (Object event : events) {
+        for (Event event : events) {
             if (i >= 10) break;
 
-            System.out.println(i + ". " + ((Event) event).toString(event.getClass().getSimpleName().replace("Daily", "")));
+            System.out.println(i + ". " + event);
             i++;
         }
 
@@ -98,15 +98,15 @@ public class MenuPrinter {
         }
 
         System.out.printf("""
-                    %s
-                    
-                    %s
-                    %s
-                                    
-                    %s
-                    %s
-                    """,
-                date + " (" + DateManager.getFormatter() + ")",
+                        %s
+                                            
+                        %s
+                        %s
+                                        
+                        %s
+                        %s
+                        """,
+                date + " (" + DateManager.getFormat() + ")",
                 event.getTitleHeader(),
                 event.getTitle(),
                 event.getDescriptionHeader(),

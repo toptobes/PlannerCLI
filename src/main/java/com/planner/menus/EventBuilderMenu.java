@@ -28,7 +28,6 @@ public class EventBuilderMenu implements Menu {
             case "b" -> Planner.addEvent(buildReminder());
             case "c" -> Planner.addEvent(buildTodo());
             case "d" -> Planner.addEvent(buildDailyReminder());
-            case "e" -> Planner.addEvent(buildDiaryEntry());
 
             default -> MenuPrinter.printCancellationScreen("" +
                     "Cancelled addition of event due to invalid input", 3, 1
@@ -44,7 +43,7 @@ public class EventBuilderMenu implements Menu {
                 b) Reminder
                 c) Todo
                 d) Daily reminder
-                e) Diary entry""");
+                """);
         return scan.nextLine();
     }
 
@@ -91,15 +90,11 @@ public class EventBuilderMenu implements Menu {
         return new DailyReminder(buildReminder());
     }
 
-    private DiaryEntry buildDiaryEntry() {
-        return new DiaryEntry(buildDefaultEvent());
-    }
-
     private boolean setStartTime(Event event) throws ParseException {
         MenuPrinter.printMenuWithCancel("" +
                 "Add event:\n" +
                 "When does this event start?\n" +
-                "The current format is " + DateManager.getFormatter());
+                "The current format is " + DateManager.getFormat());
 
         String response = scan.nextLine();
 
@@ -120,7 +115,7 @@ public class EventBuilderMenu implements Menu {
                 Add event:
                 When does this event end?
                 The current format is %s
-                Type "null" if it's a one-time event instead of a period of time""".formatted(DateManager.getFormatter()));
+                Type "null" if it's a one-time event instead of a period of time""".formatted(DateManager.getFormat()));
 
         String response = scan.nextLine();
 

@@ -8,8 +8,9 @@ public class Todo extends Event {
 
     public Todo(Event event) {
         super(event);
-        setTitleHeader("Quick Description:");
-        setDescriptionHeader("Todo:");
+        titleHeader = "Quick Description:";
+        descriptionHeader = "Todo:";
+        type = "Todo";
     }
 
     public void addTodo(String todo) {

@@ -5,7 +5,8 @@ import com.planner.Events.Reminder;
 import com.planner.Events.Todo;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
+import java.util.Collections;
+import java.util.List;
 
 public class Planner {
     private static final Planner instance = new Planner();
@@ -15,15 +16,19 @@ public class Planner {
     }
 
     private Planner() {
-        planner = new TreeMap<>();
+        planner = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            planner.add(Event.getDefaultEvent());
+        }
     }
 
     //---------------------------------------------------------------------------------
 
-    private TreeMap<Long, ? super Event> planner;
+    private final ArrayList<Event> planner;
 
-    public static void loadPlanner(TreeMap<Long, ? super Event> deserializedPlanner) {
-        instance.planner = deserializedPlanner;
+    public static <E extends Event> void loadPlanner(List<E> deserializedPlanner) {
+        instance.planner.clear();
+        instance.planner.addAll(deserializedPlanner);
     }
 
     public static <E extends Event> void addEvent(E event) {
@@ -31,20 +36,28 @@ public class Planner {
             return;
         }
 
-        instance.planner.put(event.getStartTime(), event);
+        instance.planner.add(event);
+        Collections.sort(instance.planner);
     }
 
-    public static ArrayList<ArrayList<? super Event>> getPages(int eventsPerPage) {
-        ArrayList<? super Event> events = new ArrayList<>(instance.planner.values());
-
-        if (events.size() == 0) {
-            for (int i = 0; i < 38; i++) {
-                events.add(Event.getDefaultEvent());
-            }
+    public static void removeEventAt(int index) {
+        if (index < 0 || index > instance.planner.size()) {
+            return;
         }
 
-        ArrayList<ArrayList<? super Event>> pages = new ArrayList<>();
-        int numPages = getNumPages(eventsPerPage);
+        instance.planner.remove(index);
+        Collections.sort(instance.planner);
+    }
+
+    public static ArrayList<ArrayList<Event>> getPages(int eventsPerPage) {
+        ArrayList<Event> events = new ArrayList<>(instance.planner);
+
+        System.out.println(events);
+
+        ArrayList<ArrayList<Event>> pages = new ArrayList<>();
+        int numPages = getNumPages(events, eventsPerPage);
+
+        System.out.println(numPages);
 
         for (int i = 0; i < numPages; i++)
             pages.add(new ArrayList<>(
@@ -54,14 +67,14 @@ public class Planner {
         return pages;
     }
 
-    public static int getNumPages(int eventsPerPage) {
-        return (int) Math.ceil(1.0 * instance.planner.size() / eventsPerPage);
+    public static int getNumPages(List<?> events, int eventsPerPage) {
+        return (int) Math.ceil(1.0 * events.size() / eventsPerPage);
     }
 
-    public static <E extends Event> String getNextReminder() {
+    public static String getNextReminder() {
         String lastTodo = null, lastEvent = null;
 
-        for (Object value : instance.planner.values()) {
+        for (Event value : instance.planner) {
 
             if (value instanceof Reminder) {
                 return value.toString();
@@ -83,7 +96,7 @@ public class Planner {
         return "Nothing yet!";
     }
 
-    public static TreeMap<Long, ? super Event> getPlanner() {
+    public static ArrayList<Event> getPlanner() {
         return instance.planner;
     }
 }

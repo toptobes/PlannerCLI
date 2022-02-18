@@ -8,7 +8,7 @@ import java.util.TimeZone;
 
 public class DateManager {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-    private static String formatter = "dd-MM-yyyy";
+    private static String format = "MM-dd-yyyy";
     private static TimeZone timeZone = Calendar.getInstance().getTimeZone();
 
     public static long toUnixTimestamp(String time) throws ParseException {
@@ -21,12 +21,12 @@ public class DateManager {
         return dateFormat.format(new Date(time));
     }
 
-    public static String getFormatter() {
-        return formatter;
+    public static String getFormat() {
+        return format;
     }
 
     public static void setFormat(String format) {
-        DateManager.formatter = format;
+        DateManager.format = format;
     }
 
     public static TimeZone getTimeZone() {
