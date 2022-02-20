@@ -2,14 +2,15 @@ package com.planner.menus;
 
 import com.planner.event.Event;
 import com.planner.Planner;
+import com.planner.utility.Color;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 @SuppressWarnings("DuplicatedCode")
-public class EventsRemoverMenu implements Menu {
-    private static final Scanner scan = new Scanner(System.in);
+public class EventViewerMenu implements Menu {
+    private static Scanner scan = new Scanner(System.in);
 
     @Override
     public void show() {
@@ -42,7 +43,7 @@ public class EventsRemoverMenu implements Menu {
         }
 
         System.out.printf("""
-                *You can type any number to remove the event
+                *You can type any number to view the event
                 *Type "end" at any time to leave            < Prev (%02d)            (%02d) Next >
                 --------------------------------------------------------------------------------------------------
                 >\040""", numPrev, numNext);
@@ -71,15 +72,18 @@ public class EventsRemoverMenu implements Menu {
             }
         }
 
-        if (!response.matches("\\d{3}")) return false;
+        if (!response.matches("\\d{1,3}")) return false;
 
         int responseAsInt = Integer.parseInt(response);
 
-        if (responseAsInt >= 0 && responseAsInt < pages.get(current).size()) {
-            Planner.INSTANCE.removeEventAt(responseAsInt + numPrev * 13);
-            new EventsRemoverMenu().show();
+        if (0 <= responseAsInt && responseAsInt < pages.get(current).size()) {
+            viewEvent(pages.get(current).get(responseAsInt));
         }
 
         return false;
+    }
+
+    private void viewEvent(Event event) {
+        new SingleEventViewerMenu(event).show();
     }
 }

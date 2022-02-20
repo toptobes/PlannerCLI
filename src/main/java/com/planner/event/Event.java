@@ -16,17 +16,6 @@ public record Event(EventType type,
     @Serial
     private static final long serialVersionUID = 4L;
 
-    public String toString() {
-        String title = type.getTitleHeader() + " " + this.title;
-        String description = type.getDescriptionHeader() + " " + this.description;
-
-        return " %s %-8s %-33s %-42s".formatted(
-                new DateManager().toFormattedDate(startTime),
-                type + ":",
-                title.substring(0, Math.min(33, title.length())) + ((title.length() > 33) ? "…" : ""),
-                description.substring(0, Math.min(47, description.length())) + ((description.length() > 47) ? "…" : ""));
-    }
-
     @Override
     public int compareTo(@NotNull Event o) {
         return (startTime > o.startTime) ? 1 : -1;
@@ -39,5 +28,36 @@ public record Event(EventType type,
                 "It seems you don't have any events planned yet... why not plan one now?",
                 0L,
                 0L);
+    }
+
+    @Override
+    public String toString() {
+        String title = cutStringOffAt(type.getTitleHeader(), 11, ": ") + this.title;
+        String description = cutStringOffAt(type.getDescriptionHeader(), 5, ": ") + this.description;
+
+        return String.format(
+                " %s %-10s %-33s %s",
+                new DateManager().toFormattedDate(startTime),
+                type.getName() + ":",
+                format(title, 35),
+                format(description, 42));
+    }
+
+    private String format(String string, int length) {
+        return cutStringOffAt(string, length, "…").replace("\n", "\\").trim();
+    }
+
+    private String cutStringOffAt(String string, int length, String s) {
+        if (string.length() <= length) {
+            return string;
+        }
+
+        String cutOffString = string.substring(0, length - 1);
+
+        if (cutOffString.endsWith(" ")) {
+            return cutOffString.substring(0, cutOffString.length() - 2) + s;
+        }
+
+        return cutOffString + s;
     }
 }

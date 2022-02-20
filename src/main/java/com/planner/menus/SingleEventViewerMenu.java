@@ -1,7 +1,8 @@
 package com.planner.menus;
 
-import com.planner.utility.DateManager;
 import com.planner.event.Event;
+import com.planner.utility.DateManager;
+
 import java.util.Scanner;
 
 public class SingleEventViewerMenu implements Menu {

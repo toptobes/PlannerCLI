@@ -17,6 +17,7 @@ public class MenuPrinter {
         for (double i = seconds; i >= 0; i -= step) {
             System.out.printf("""
                     --------------------------------------------------------------------------------------------------
+                    %s
                     """, cancellationMessage);
 
             for (int j = cancellationMessage.split("\n").length; j < 13; j++) {
@@ -24,6 +25,7 @@ public class MenuPrinter {
             }
 
             System.out.printf("""
+                    This screen closes in %f seconds
                     --------------------------------------------------------------------------------------------------
                     """, i);
 

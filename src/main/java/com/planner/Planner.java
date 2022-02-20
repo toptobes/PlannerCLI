@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public enum Planner {
     INSTANCE;
 
-    private ArrayList<Event> planner = new ArrayList<>();
+    private ArrayList<Event> eventsList = new ArrayList<>();
 
     public void addEvent(Event event) {
         if (event == null) {
@@ -22,22 +22,22 @@ public enum Planner {
             return;
         }
 
-        planner.add(event);
-        Collections.sort(planner);
+        eventsList.add(event);
+        Collections.sort(eventsList);
     }
 
     public void removeEventAt(int index) {
-        if (index < 0 || index >= planner.size()) {
+        if (index < 0 || index >= eventsList.size()) {
             MenuPrinter.printErrorScreen("Oops! Index is out of bounds");
             return;
         }
 
-        planner.remove(index);
-        Collections.sort(planner);
+        eventsList.remove(index);
+        Collections.sort(eventsList);
     }
 
     public List<List<Event>> getPages(int eventsPerPage) {
-        List<Event> events = new ArrayList<>(planner);
+        List<Event> events = new ArrayList<>(eventsList);
 
         List<List<Event>> pages = new ArrayList<>();
         int numPages = getNumPages(events, eventsPerPage);
@@ -54,31 +54,31 @@ public enum Planner {
         return (int) Math.ceil(1.0 * events.size() / eventsPerPage);
     }
 
-    public String getNextReminder() {
-        String lastReminder = null;
-        String lastTodo = null;
-        String lastEvent = null;
+    public Event getNextReminder() {
+        Event lastReminder = null;
+        Event lastTodo = null;
+        Event lastEvent = null;
 
-        for (Event e : planner) {
-            if (e.type() == EventType.REMINDER) lastReminder = e.title();
-            if (e.type() == EventType.TODO) lastTodo = e.title();
-            if (e.type() == EventType.EVENT) lastEvent = e.title();
+        for (Event e : eventsList) {
+            if (e.type() == EventType.REMINDER) lastReminder = e;
+            if (e.type() == EventType.TODO) lastTodo = e;
+            if (e.type() == EventType.EVENT) lastEvent = e;
 
         }
 
         return Stream.of(lastReminder, lastTodo, lastEvent)
                 .filter(Objects::nonNull)
                 .findFirst()
-                .orElse("Nothing here yet!");
+                .orElseGet(Event::getDefaultEvent);
     }
 
-    public List<Event> getPlanner() {
-        return planner;
+    public List<Event> getEventsList() {
+        return eventsList;
     }
 
-    public void savePlanner() {
+    public static void savePlanner() {
         try (var out = new ObjectOutputStream(new FileOutputStream("src/main/resources/planner-save.txt"))) {
-            out.writeObject(planner);
+            out.writeObject(INSTANCE.eventsList);
 
         } catch (IOException e) {
             MenuPrinter.printErrorScreen("Oops! Couldn't save the planner... rip");
@@ -86,9 +86,9 @@ public enum Planner {
     }
 
     @SuppressWarnings("unchecked")
-    public void loadPlanner() {
+    public static void loadPlanner() {
         try (var ois = new ObjectInputStream(new FileInputStream("src/main/resources/planner-save.txt"))) {
-            planner = (ArrayList<Event>) ois.readObject();
+            INSTANCE.eventsList = (ArrayList<Event>) ois.readObject();
 
         } catch (IOException | ClassNotFoundException e) {
             MenuPrinter.printErrorScreen("Oops! Couldn't load the planner... rip");

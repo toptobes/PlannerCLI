@@ -1,27 +1,27 @@
 package com.planner.menus;
 
-import java.util.Scanner;
+import com.planner.Planner;
 
-public class MainMenu implements Menu {
+public class MainMenu implements Menu{
     @Override
     public void show() {
-        System.out.print("""
+        System.out.printf("""
                 --------------------------------------------------------------------------------------------------
+                Planner App v1.0.0
                 
+                "View events" -> View your current events
+                "Add event" -> Add an event to your planner
+                "Remove event" -> Remove an event from your planner
                 
-                 _____  _
-                |  __ \\| |                           \s
-                | |__) | | __ _ _ __  _ __   ___ _ __\s
-                |  ___/| |/ _` | '_ \\| '_ \\ / _ \\ '__|
-                | |    | | (_| | | | | | | |  __/ |  \s
-                |_|    |_|\\__,_|_| |_|_| |_|\\___|_|  \s v1.0.1
-                                                     \s
+                "Options" -> Open the options menu
+                "Main Menu" -> Exit to main menu
+                "Exit" -> Exit
                 
-                 - Type anything to start
-                 
+                Upcoming reminder:
+                 - %s
                 
+                *Not case sensitive
                 --------------------------------------------------------------------------------------------------
-                >\040""");
-        new Scanner(System.in).next();
+                >\040""", Planner.INSTANCE.getNextReminder().title());
     }
 }

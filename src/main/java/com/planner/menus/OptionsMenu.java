@@ -1,27 +1,28 @@
 package com.planner.menus;
 
 import com.planner.Planner;
+import com.planner.utility.DateManager;
 
-public class OptionsMenu implements Menu{
+public class OptionsMenu implements Menu {
     @Override
     public void show() {
         System.out.printf("""
                 --------------------------------------------------------------------------------------------------
-                Planner App v0.1.0
-                
-                "View events" -> View your current events
-                "Add event" -> Add an event to your planner
-                "Remove event" -> Remove an event from your planner
-                
-                "Options" -> Open the options menu
-                "Main Menu" -> Exit to main menu
-                "Exit" -> Exit
-                
+                Planner App v1.0.0
+                                
+                "Set color" -> Change the color of your planner
+                "Change scale" -> Make the menu bigger or smaller
+                "Change time format" -> Changer your time format from %s
+                                
+                "Load planner from file" -> Replace your planner from one from another file
+                "Reset planner" -> Completely wipe your planner (Cannot be undone)
+                              
                 Upcoming reminder:
                  - %s
-                
+                                
                 *Not case sensitive
+                *Type "end" at any time to leave
                 --------------------------------------------------------------------------------------------------
-                >\040""", Planner.INSTANCE.getNextReminder());
+                >\040""", DateManager.getFormat(), Planner.INSTANCE.getNextReminder().title());
     }
 }

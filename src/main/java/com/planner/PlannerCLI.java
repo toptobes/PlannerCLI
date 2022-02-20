@@ -1,12 +1,24 @@
 package com.planner;
 
 import com.planner.menus.*;
+import com.planner.utility.Color;
 
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class PlannerCLI {
     public static void main(String... args) {
-        Runtime.getRuntime().addShutdownHook(new Thread(Planner.INSTANCE::savePlanner));
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(Planner::savePlanner, 5, 5, TimeUnit.MINUTES);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.print(Color.RESET);
+            Planner.savePlanner();
+        }));
+
+        Planner.loadPlanner();
+
+        Color.setDefaultColor(Color.RED);
 
         PlannerCLI.start();
     }
@@ -14,26 +26,26 @@ public class PlannerCLI {
     private static final Scanner scan = new Scanner(System.in);
 
     public static void start() {
-        new MainMenu().show();
+        new TitleScreen().show();
 
-        var menu = new OptionsMenu();
-        String input;
+        var menu = new MainMenu();
 
-        do {
+        while (true) {
             menu.show();
-            read(input = scan.nextLine());
-
-        } while (!input.equals("exit"));
+            read(scan.nextLine());
+        }
     }
 
     private static void read(String input) {
 
         switch (input.toLowerCase()) {
-            case "view events", "v" -> new EventsViewerMenu().show();
-            case "add event", "a" -> new EventBuilderMenu().show();
-            case "remove event", "r" -> new EventsRemoverMenu().show();
-            case "options", "o" -> {}
-            case "main menu", "m" -> new MainMenu().show();
+            case "view events", "v" -> new EventViewerMenu().show();
+            case "add event", "a" -> new EventAdderMenu().show();
+            case "remove event", "r" -> new EventRemoverMenu().show();
+            case "options", "o" -> new OptionsMenu().show();
+            case "main menu", "m" -> new TitleScreen().show();
+            case "upcoming reminder", "u" -> new SingleEventViewerMenu(Planner.INSTANCE.getNextReminder()).show();
+            case "exit" -> System.exit(0);
         }
     }
 }

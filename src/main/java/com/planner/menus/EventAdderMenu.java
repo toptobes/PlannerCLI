@@ -1,14 +1,15 @@
 package com.planner.menus;
 
-import com.planner.utility.DateManager;
-import com.planner.event.*;
-import com.planner.utility.MenuPrinter;
 import com.planner.Planner;
+import com.planner.event.Event;
+import com.planner.event.EventType;
+import com.planner.utility.DateManager;
+import com.planner.utility.MenuPrinter;
 
 import java.text.ParseException;
 import java.util.Scanner;
 
-public class EventBuilderMenu implements Menu {
+public class EventAdderMenu implements Menu {
 
     Planner planner = Planner.INSTANCE;
     Scanner scan = new Scanner(System.in);
@@ -38,7 +39,7 @@ public class EventBuilderMenu implements Menu {
             case "c" -> event = buildEvent(EventType.TODO);
             case "d" -> event = buildEvent(EventType.DAILY_REMINDER);
 
-            default -> MenuPrinter.printCancellationScreen("" +
+            default -> MenuPrinter.printCancellationScreen(
                     "Cancelled addition of event due to invalid input", 3, 1
             );
         }
@@ -66,7 +67,7 @@ public class EventBuilderMenu implements Menu {
 
         if ((startTime = getStartTime()) == null
                 || (endTime = getEndTime(type, startTime)) == null
-                || (title = getTitle()) == null
+                || (title = getTitle(type)) == null
                 || (description = getDescription(type)) == null
         ) {
             MenuPrinter.printCancellationScreen("Cancelled event addition",3 , 1);
@@ -116,7 +117,9 @@ public class EventBuilderMenu implements Menu {
         return dm.toUnixTimestamp(response);
     }
 
-    private String getTitle() {
+    private String getTitle(EventType type) {
+        if (!type.hasTitle()) return "";
+
         printMenuWithCancel("""
                 Add event:
                 What is the title of this event?""");
