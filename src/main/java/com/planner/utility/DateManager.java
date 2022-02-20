@@ -1,4 +1,4 @@
-package com.planner;
+package com.planner.utility;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

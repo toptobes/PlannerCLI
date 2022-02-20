@@ -4,9 +4,11 @@ import com.planner.menus.*;
 
 import java.util.Scanner;
 
-public class Menu {
-    public static void main(String[] args) {
-        Menu.start();
+public class PlannerCLI {
+    public static void main(String... args) {
+        Runtime.getRuntime().addShutdownHook(new Thread(Planner.INSTANCE::savePlanner));
+
+        PlannerCLI.start();
     }
 
     private static final Scanner scan = new Scanner(System.in);

@@ -1,7 +1,7 @@
 package com.planner.menus;
 
-import com.planner.DateManager;
-import com.planner.Events.Event;
+import com.planner.utility.DateManager;
+import com.planner.event.Event;
 import java.util.Scanner;
 
 public class SingleEventViewerMenu implements Menu {
@@ -23,7 +23,7 @@ public class SingleEventViewerMenu implements Menu {
     }
 
     public static void printEvent(Event event) {
-        System.out.println("----------------------------------------------------------------------------------------");
+        System.out.println("--------------------------------------------------------------------------------------------------");
 
         printEventBody(event);
 
@@ -33,7 +33,7 @@ public class SingleEventViewerMenu implements Menu {
 
         System.out.print("""
                 *Type "end" at any time to exit
-                ----------------------------------------------------------------------------------------
+                --------------------------------------------------------------------------------------------------
                 >\040""");
     }
 

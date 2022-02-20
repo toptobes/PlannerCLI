@@ -6,7 +6,7 @@ public class OptionsMenu implements Menu{
     @Override
     public void show() {
         System.out.printf("""
-                ----------------------------------------------------------------------------------------
+                --------------------------------------------------------------------------------------------------
                 Planner App v0.1.0
                 
                 "View events" -> View your current events
@@ -21,7 +21,7 @@ public class OptionsMenu implements Menu{
                  - %s
                 
                 *Not case sensitive
-                ----------------------------------------------------------------------------------------
+                --------------------------------------------------------------------------------------------------
                 >\040""", Planner.INSTANCE.getNextReminder());
     }
 }

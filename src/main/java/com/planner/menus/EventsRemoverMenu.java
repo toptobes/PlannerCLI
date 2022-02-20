@@ -1,7 +1,6 @@
 package com.planner.menus;
 
-import com.planner.Events.Event;
-import com.planner.MenuPrinter;
+import com.planner.event.Event;
 import com.planner.Planner;
 
 import java.util.ArrayList;
@@ -28,7 +27,9 @@ public class EventsRemoverMenu implements Menu {
     private int current = 0;
 
     private void printListedEvents() {
-        System.out.println("----------------------------------------------------------------------------------------");
+        if (pages.isEmpty()) pages.add(List.of(Event.getDefaultEvent()));
+
+        System.out.println("--------------------------------------------------------------------------------------------------");
 
         int i = 0;
         for (Event event : pages.get(current)) {
@@ -42,8 +43,8 @@ public class EventsRemoverMenu implements Menu {
 
         System.out.printf("""
                 *You can type any number to remove the event
-                "*Type "end" at any time to leave            < Prev (%02d)            (%02d) Next >
-                ----------------------------------------------------------------------------------------
+                *Type "end" at any time to leave            < Prev (%02d)            (%02d) Next >
+                --------------------------------------------------------------------------------------------------
                 >\040""", numPrev, numNext);
     }
 
@@ -70,12 +71,12 @@ public class EventsRemoverMenu implements Menu {
             }
         }
 
-        if (!response.matches("\\d+")) return false;
+        if (!response.matches("\\d{3}")) return false;
 
         int responseAsInt = Integer.parseInt(response);
 
         if (responseAsInt >= 0 && responseAsInt < pages.get(current).size()) {
-            Planner.INSTANCE.removeEventAt(responseAsInt);
+            Planner.INSTANCE.removeEventAt(responseAsInt + numPrev * 13);
             new EventsRemoverMenu().show();
         }
 

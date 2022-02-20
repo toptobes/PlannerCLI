@@ -1,8 +1,10 @@
 package com.planner;
 
-import com.planner.Events.Event;
-import com.planner.Events.Type;
+import com.planner.event.Event;
+import com.planner.event.EventType;
+import com.planner.utility.MenuPrinter;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,22 +14,11 @@ import java.util.stream.Stream;
 public enum Planner {
     INSTANCE;
 
-    private final ArrayList<Event> planner = new ArrayList<>();
-
-    Planner() {
-        for (int i = 0; i < 12; i++) {
-            planner.add(Event.getDefaultEvent());
-        }
-    }
-
-    public void loadPlanner(List<? extends Event> deserializedPlanner) {
-        planner.clear();
-        planner.addAll(deserializedPlanner);
-    }
+    private ArrayList<Event> planner = new ArrayList<>();
 
     public void addEvent(Event event) {
         if (event == null) {
-            MenuPrinter.printCancellationScreen("Error: Event is null", 3, 1);
+            MenuPrinter.printErrorScreen("Oops! Event is null");
             return;
         }
 
@@ -36,8 +27,8 @@ public enum Planner {
     }
 
     public void removeEventAt(int index) {
-        if (index < 0 || index > planner.size()) {
-            MenuPrinter.printCancellationScreen("Error: Index is out of bounds", 3, 1);
+        if (index < 0 || index >= planner.size()) {
+            MenuPrinter.printErrorScreen("Oops! Index is out of bounds");
             return;
         }
 
@@ -69,9 +60,9 @@ public enum Planner {
         String lastEvent = null;
 
         for (Event e : planner) {
-            if (e.type() == Type.REMINDER) lastReminder = e.title();
-            if (e.type() == Type.TODO) lastTodo = e.title();
-            if (e.type() == Type.EVENT) lastEvent = e.title();
+            if (e.type() == EventType.REMINDER) lastReminder = e.title();
+            if (e.type() == EventType.TODO) lastTodo = e.title();
+            if (e.type() == EventType.EVENT) lastEvent = e.title();
 
         }
 
@@ -83,5 +74,24 @@ public enum Planner {
 
     public List<Event> getPlanner() {
         return planner;
+    }
+
+    public void savePlanner() {
+        try (var out = new ObjectOutputStream(new FileOutputStream("src/main/resources/planner-save.txt"))) {
+            out.writeObject(planner);
+
+        } catch (IOException e) {
+            MenuPrinter.printErrorScreen("Oops! Couldn't save the planner... rip");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void loadPlanner() {
+        try (var ois = new ObjectInputStream(new FileInputStream("src/main/resources/planner-save.txt"))) {
+            planner = (ArrayList<Event>) ois.readObject();
+
+        } catch (IOException | ClassNotFoundException e) {
+            MenuPrinter.printErrorScreen("Oops! Couldn't load the planner... rip");
+        }
     }
 }

@@ -1,8 +1,8 @@
 package com.planner.menus;
 
-import com.planner.DateManager;
-import com.planner.Events.*;
-import com.planner.MenuPrinter;
+import com.planner.utility.DateManager;
+import com.planner.event.*;
+import com.planner.utility.MenuPrinter;
 import com.planner.Planner;
 
 import java.text.ParseException;
@@ -16,30 +16,38 @@ public class EventBuilderMenu implements Menu {
 
     @Override
     public void show() {
-        buildEventOfTypeX();
+        try {
+            buildEventOfTypeX();
+
+        } catch (ParseException ignored) {
+            MenuPrinter.printErrorScreen("Error with parsing date; did you enter the right format?");
+        }
     }
 
-    private void buildEventOfTypeX() {
+    private void buildEventOfTypeX() throws ParseException {
         String response = queryTypeOfEvent();
+        Event event = null;
 
         if (response.equals("cancel")) MenuPrinter.printCancellationScreen(
                 "Cancelled addition of event", 3, 1
         );
 
         switch (response) {
-            case "a" -> planner.addEvent(buildEvent(Type.EVENT));
-            case "b" -> planner.addEvent(buildEvent(Type.REMINDER));
-            case "c" -> planner.addEvent(buildEvent(Type.TODO));
-            case "d" -> planner.addEvent(buildEvent(Type.DAILY_REMINDER));
+            case "a" -> event = buildEvent(EventType.EVENT);
+            case "b" -> event = buildEvent(EventType.REMINDER);
+            case "c" -> event = buildEvent(EventType.TODO);
+            case "d" -> event = buildEvent(EventType.DAILY_REMINDER);
 
             default -> MenuPrinter.printCancellationScreen("" +
                     "Cancelled addition of event due to invalid input", 3, 1
             );
         }
+
+        if (event != null) planner.addEvent(event);
     }
 
     private String queryTypeOfEvent() {
-        MenuPrinter.printMenuWithCancel("""
+        printMenuWithCancel("""
                 Add event:
                 What type of event is this?
                 a) Default event
@@ -50,33 +58,27 @@ public class EventBuilderMenu implements Menu {
         return scan.nextLine();
     }
 
-    private Event buildEvent(Type type) {
+    private Event buildEvent(EventType type) throws ParseException {
         Long startTime;
         Long endTime;
         String title;
         String description;
 
-        try {
-
-            if ((startTime = getStartTime()) == null
-                    || (endTime = getEndTime(type, startTime)) == null
-                    || (title = getTitle()) == null
-                    || (description = getDescription(type)) == null
-            ) {
-                MenuPrinter.printErrorScreen("Error with adding event to the planner");
-                return null;
-            }
-
-            return new Event(type, title, description, startTime, endTime);
-
-        } catch (ParseException ignored) {
-            MenuPrinter.printErrorScreen("Error with parsing date; did you enter the right format?");
+        if ((startTime = getStartTime()) == null
+                || (endTime = getEndTime(type, startTime)) == null
+                || (title = getTitle()) == null
+                || (description = getDescription(type)) == null
+        ) {
+            MenuPrinter.printCancellationScreen("Cancelled event addition",3 , 1);
             return null;
         }
+
+        return new Event(type, title, description, startTime, endTime);
+
     }
 
     private Long getStartTime() throws ParseException {
-        MenuPrinter.printMenuWithCancel("" +
+        printMenuWithCancel("" +
                 "Add event:\n" +
                 "When does this event start?\n" +
                 "The current format is " + DateManager.getFormat());
@@ -90,12 +92,12 @@ public class EventBuilderMenu implements Menu {
         return dm.toUnixTimestamp(response);
     }
 
-    private Long getEndTime(Type type, Long startTime) throws ParseException {
+    private Long getEndTime(EventType type, Long startTime) throws ParseException {
         if (!type.hasEndTime()) {
             return startTime;
         }
 
-        MenuPrinter.printMenuWithCancel("""
+        printMenuWithCancel("""
                 Add event:
                 When does this event end?
                 The current format is %s
@@ -115,7 +117,7 @@ public class EventBuilderMenu implements Menu {
     }
 
     private String getTitle() {
-        MenuPrinter.printMenuWithCancel("""
+        printMenuWithCancel("""
                 Add event:
                 What is the title of this event?""");
 
@@ -128,13 +130,13 @@ public class EventBuilderMenu implements Menu {
         return response;
     }
 
-    private String getDescription(Type type) {
-        if (type == Type.TODO) return getTodo();
+    private String getDescription(EventType type) {
+        if (type == EventType.TODO) return getTodo();
         return getDescription();
     }
 
     private String getDescription() {
-        MenuPrinter.printMenuWithCancel("""
+        printMenuWithCancel("""
                 Add event:
                 What is the description of this event?
                 You can type up to 7 lines, type end to stop""");
@@ -143,7 +145,7 @@ public class EventBuilderMenu implements Menu {
     }
 
     private String getTodo() {
-        MenuPrinter.printMenuWithCancel("""
+        printMenuWithCancel("""
                 Add event:
                 What tasks do you need to do? Type "end" to stop""");
 
@@ -170,5 +172,21 @@ public class EventBuilderMenu implements Menu {
         }
 
         return description.toString();
+    }
+
+    private void printMenuWithCancel(String toPrint) {
+        System.out.printf("""
+                --------------------------------------------------------------------------------------------------
+                %s
+                """, toPrint);
+
+        for (int i = toPrint.split("\n").length; i < 13; i++) {
+            System.out.println();
+        }
+
+        System.out.print("""
+                *Type "cancel" at any time to exit
+                --------------------------------------------------------------------------------------------------
+                >\040""");
     }
 }
