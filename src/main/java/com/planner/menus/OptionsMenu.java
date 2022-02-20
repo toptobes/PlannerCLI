@@ -22,6 +22,6 @@ public class OptionsMenu implements Menu{
                 
                 *Not case sensitive
                 ----------------------------------------------------------------------------------------
-                >\040""", Planner.getNextReminder());
+                >\040""", Planner.INSTANCE.getNextReminder());
     }
 }

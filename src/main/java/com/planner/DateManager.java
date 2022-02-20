@@ -7,16 +7,16 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class DateManager {
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-    private static String format = "MM-dd-yyyy";
+    private static String format = "hh:mm:ss";
     private static TimeZone timeZone = Calendar.getInstance().getTimeZone();
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
 
-    public static long toUnixTimestamp(String time) throws ParseException {
+    public long toUnixTimestamp(String time) throws ParseException {
         dateFormat.setTimeZone(timeZone);
         return dateFormat.parse(time).getTime() / 1000;
     }
 
-    public static String toFormattedDate(long time) throws ParseException {
+    public String toFormattedDate(long time) {
         dateFormat.setTimeZone(timeZone);
         return dateFormat.format(new Date(time));
     }

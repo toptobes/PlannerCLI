@@ -1,58 +1,54 @@
 package com.planner;
 
 import com.planner.Events.Event;
-import com.planner.Events.Reminder;
-import com.planner.Events.Todo;
+import com.planner.Events.Type;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
-public class Planner {
-    private static final Planner instance = new Planner();
+public enum Planner {
+    INSTANCE;
 
-    public static Planner getInstance() {
-        return instance;
-    }
+    private final ArrayList<Event> planner = new ArrayList<>();
 
-    private Planner() {
-        planner = new ArrayList<>();
+    Planner() {
         for (int i = 0; i < 12; i++) {
             planner.add(Event.getDefaultEvent());
         }
     }
 
-    //---------------------------------------------------------------------------------
-
-    private final ArrayList<Event> planner;
-
-    public static <E extends Event> void loadPlanner(List<E> deserializedPlanner) {
-        instance.planner.clear();
-        instance.planner.addAll(deserializedPlanner);
+    public void loadPlanner(List<? extends Event> deserializedPlanner) {
+        planner.clear();
+        planner.addAll(deserializedPlanner);
     }
 
-    public static <E extends Event> void addEvent(E event) {
+    public void addEvent(Event event) {
         if (event == null) {
+            MenuPrinter.printCancellationScreen("Error: Event is null", 3, 1);
             return;
         }
 
-        instance.planner.add(event);
-        Collections.sort(instance.planner);
+        planner.add(event);
+        Collections.sort(planner);
     }
 
-    public static void removeEventAt(int index) {
-        if (index < 0 || index > instance.planner.size()) {
+    public void removeEventAt(int index) {
+        if (index < 0 || index > planner.size()) {
+            MenuPrinter.printCancellationScreen("Error: Index is out of bounds", 3, 1);
             return;
         }
 
-        instance.planner.remove(index);
-        Collections.sort(instance.planner);
+        planner.remove(index);
+        Collections.sort(planner);
     }
 
-    public static ArrayList<ArrayList<Event>> getPages(int eventsPerPage) {
-        ArrayList<Event> events = new ArrayList<>(instance.planner);
+    public List<List<Event>> getPages(int eventsPerPage) {
+        List<Event> events = new ArrayList<>(planner);
 
-        ArrayList<ArrayList<Event>> pages = new ArrayList<>();
+        List<List<Event>> pages = new ArrayList<>();
         int numPages = getNumPages(events, eventsPerPage);
 
         for (int i = 0; i < numPages; i++)
@@ -63,37 +59,29 @@ public class Planner {
         return pages;
     }
 
-    public static int getNumPages(List<?> events, int eventsPerPage) {
+    private int getNumPages(List<?> events, int eventsPerPage) {
         return (int) Math.ceil(1.0 * events.size() / eventsPerPage);
     }
 
-    public static String getNextReminder() {
-        String lastTodo = null, lastEvent = null;
+    public String getNextReminder() {
+        String lastReminder = null;
+        String lastTodo = null;
+        String lastEvent = null;
 
-        for (Event value : instance.planner) {
+        for (Event e : planner) {
+            if (e.type() == Type.REMINDER) lastReminder = e.title();
+            if (e.type() == Type.TODO) lastTodo = e.title();
+            if (e.type() == Type.EVENT) lastEvent = e.title();
 
-            if (value instanceof Reminder) {
-                return value.toString();
-
-            } else if (value instanceof Todo) {
-                lastTodo = value.toString();
-
-            } else if (value.getClass() == Event.class) {
-                lastEvent = value.toString();
-            }
         }
 
-        if (lastEvent != null) {
-            return lastEvent;
-
-        } else if (lastTodo != null) {
-            return lastTodo;
-        }
-        return "Nothing yet!";
+        return Stream.of(lastReminder, lastTodo, lastEvent)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse("Nothing here yet!");
     }
 
-    public static ArrayList<Event> getPlanner() {
-        return instance.planner;
+    public List<Event> getPlanner() {
+        return planner;
     }
 }
-

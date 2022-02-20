@@ -14,16 +14,18 @@ public class Menu {
     public static void start() {
         new MainMenu().show();
 
+        var menu = new OptionsMenu();
         String input;
 
         do {
-            new OptionsMenu().show();
+            menu.show();
             read(input = scan.nextLine());
 
         } while (!input.equals("exit"));
     }
 
     private static void read(String input) {
+
         switch (input.toLowerCase()) {
             case "view events", "v" -> new EventsViewerMenu().show();
             case "add event", "a" -> new EventBuilderMenu().show();

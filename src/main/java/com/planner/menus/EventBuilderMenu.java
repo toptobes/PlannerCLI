@@ -9,7 +9,10 @@ import java.text.ParseException;
 import java.util.Scanner;
 
 public class EventBuilderMenu implements Menu {
+
+    Planner planner = Planner.INSTANCE;
     Scanner scan = new Scanner(System.in);
+    DateManager dm = new DateManager();
 
     @Override
     public void show() {
@@ -24,10 +27,10 @@ public class EventBuilderMenu implements Menu {
         );
 
         switch (response) {
-            case "a" -> Planner.addEvent(buildDefaultEvent());
-            case "b" -> Planner.addEvent(buildReminder());
-            case "c" -> Planner.addEvent(buildTodo());
-            case "d" -> Planner.addEvent(buildDailyReminder());
+            case "a" -> planner.addEvent(buildEvent(Type.EVENT));
+            case "b" -> planner.addEvent(buildEvent(Type.REMINDER));
+            case "c" -> planner.addEvent(buildEvent(Type.TODO));
+            case "d" -> planner.addEvent(buildEvent(Type.DAILY_REMINDER));
 
             default -> MenuPrinter.printCancellationScreen("" +
                     "Cancelled addition of event due to invalid input", 3, 1
@@ -47,24 +50,24 @@ public class EventBuilderMenu implements Menu {
         return scan.nextLine();
     }
 
-    private Event buildDefaultEvent() {
-        return buildDefaultEvent(true, true);
-    }
+    private Event buildEvent(Type type) {
+        Long startTime;
+        Long endTime;
+        String title;
+        String description;
 
-    private Event buildDefaultEvent(boolean hasEndTime, boolean hasDescription) {
-        Event event = new Event();
         try {
 
-            if (!setStartTime(event)
-                    || !setEndTime(event, hasEndTime)
-                    || !setTitle(event)
-                    || !setDescription(event, hasDescription)
+            if ((startTime = getStartTime()) == null
+                    || (endTime = getEndTime(type, startTime)) == null
+                    || (title = getTitle()) == null
+                    || (description = getDescription(type)) == null
             ) {
                 MenuPrinter.printErrorScreen("Error with adding event to the planner");
                 return null;
             }
 
-            return event.build();
+            return new Event(type, title, description, startTime, endTime);
 
         } catch (ParseException ignored) {
             MenuPrinter.printErrorScreen("Error with parsing date; did you enter the right format?");
@@ -72,25 +75,7 @@ public class EventBuilderMenu implements Menu {
         }
     }
 
-    private Reminder buildReminder() {
-        return new Reminder(buildDefaultEvent(false, true));
-    }
-
-    private Todo buildTodo() {
-        Todo todo = new Todo(buildDefaultEvent(false, false));
-
-        if (!setTodo(todo)) {
-            return null;
-        }
-
-        return todo;
-    }
-
-    private DailyReminder buildDailyReminder() {
-        return new DailyReminder(buildReminder());
-    }
-
-    private boolean setStartTime(Event event) throws ParseException {
+    private Long getStartTime() throws ParseException {
         MenuPrinter.printMenuWithCancel("" +
                 "Add event:\n" +
                 "When does this event start?\n" +
@@ -99,39 +84,37 @@ public class EventBuilderMenu implements Menu {
         String response = scan.nextLine();
 
         if (response.equalsIgnoreCase("cancel")) {
-            return false;
+            return null;
         }
 
-        event.setStartTime(DateManager.toUnixTimestamp(response));
-        return true;
+        return dm.toUnixTimestamp(response);
     }
 
-    private boolean setEndTime(Event event, boolean hasEndTime) throws ParseException {
-        if (!hasEndTime) {
-            return true;
+    private Long getEndTime(Type type, Long startTime) throws ParseException {
+        if (!type.hasEndTime()) {
+            return startTime;
         }
 
         MenuPrinter.printMenuWithCancel("""
                 Add event:
                 When does this event end?
                 The current format is %s
-                Type "null" if it's a one-time event instead of a period of time""".formatted(DateManager.getFormat()));
+                Type "same" if it's a one-time event instead of a period of time""".formatted(DateManager.getFormat()));
 
         String response = scan.nextLine();
 
         if (response.equalsIgnoreCase("cancel")) {
-            return false;
+            return null;
         }
 
-        if (response.equalsIgnoreCase("null")) {
-            return true;
+        if (response.equalsIgnoreCase("same")) {
+            return startTime;
         }
 
-        event.setEndTime(DateManager.toUnixTimestamp(response));
-        return true;
+        return dm.toUnixTimestamp(response);
     }
 
-    private boolean setTitle(Event event) throws ParseException {
+    private String getTitle() {
         MenuPrinter.printMenuWithCancel("""
                 Add event:
                 What is the title of this event?""");
@@ -139,25 +122,37 @@ public class EventBuilderMenu implements Menu {
         String response = scan.nextLine();
 
         if (response.equalsIgnoreCase("cancel")) {
-            return false;
+            return null;
         }
 
-        event.setTitle(response);
-        return true;
+        return response;
     }
 
-    private boolean setDescription(Event event, boolean hasDescription) throws ParseException {
-        if (!hasDescription) {
-            return true;
-        }
+    private String getDescription(Type type) {
+        if (type == Type.TODO) return getTodo();
+        return getDescription();
+    }
 
-        String response;
-        StringBuilder description = new StringBuilder();
-
+    private String getDescription() {
         MenuPrinter.printMenuWithCancel("""
                 Add event:
                 What is the description of this event?
                 You can type up to 7 lines, type end to stop""");
+
+        return queryDescription();
+    }
+
+    private String getTodo() {
+        MenuPrinter.printMenuWithCancel("""
+                Add event:
+                What tasks do you need to do? Type "end" to stop""");
+
+        return queryDescription();
+    }
+
+    private String queryDescription() {
+        StringBuilder description = new StringBuilder();
+        String response;
 
         for (int i = 7; i > 0; i--) {
             response = scan.nextLine();
@@ -166,7 +161,7 @@ public class EventBuilderMenu implements Menu {
                 System.out.print("> ");
             }
             if (response.equalsIgnoreCase("cancel")) {
-                return false;
+                return null;
             }
             if (response.equalsIgnoreCase("end")) {
                 break;
@@ -174,30 +169,6 @@ public class EventBuilderMenu implements Menu {
             description.append(response).append("\n");
         }
 
-        event.setDescription(description.toString());
-        return true;
-    }
-
-    private boolean setTodo(Todo todo) {
-        String response;
-
-        MenuPrinter.printMenuWithCancel("""
-                Add event:
-                What tasks do you need to do? Type "end" to stop""");
-
-        while (true) {
-            response = scan.nextLine();
-
-            System.out.print("> ");
-
-            if (response.equalsIgnoreCase("cancel")) {
-                return false;
-            }
-            if (response.equalsIgnoreCase("end")) {
-                break;
-            }
-            todo.addTodo(response);
-        }
-        return true;
+        return description.toString();
     }
 }
