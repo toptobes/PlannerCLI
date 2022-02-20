@@ -77,7 +77,7 @@ public enum Planner {
     }
 
     public static void savePlanner() {
-        try (var out = new ObjectOutputStream(new FileOutputStream("src/main/resources/planner-save.txt"))) {
+        try (var out = new ObjectOutputStream(new FileOutputStream("src/main/resources/planner-save.ser"))) {
             out.writeObject(INSTANCE.eventsList);
 
         } catch (IOException e) {
@@ -87,7 +87,7 @@ public enum Planner {
 
     @SuppressWarnings("unchecked")
     public static void loadPlanner() {
-        try (var ois = new ObjectInputStream(new FileInputStream("src/main/resources/planner-save.txt"))) {
+        try (var ois = new ObjectInputStream(new FileInputStream("src/main/resources/planner-save.ser"))) {
             INSTANCE.eventsList = (ArrayList<Event>) ois.readObject();
 
         } catch (IOException | ClassNotFoundException e) {

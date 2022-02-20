@@ -2,6 +2,7 @@ package com.planner;
 
 import com.planner.menus.*;
 import com.planner.utility.Color;
+import com.planner.utility.Settings;
 
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -12,13 +13,13 @@ public class PlannerCLI {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(Planner::savePlanner, 5, 5, TimeUnit.MINUTES);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.print(Color.RESET);
+            System.out.print(Color.DEFAULT);
             Planner.savePlanner();
         }));
 
         Planner.loadPlanner();
 
-        Color.setDefaultColor(Color.RED);
+        new Settings().loadSettings();
 
         PlannerCLI.start();
     }

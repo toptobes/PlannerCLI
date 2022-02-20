@@ -1,9 +1,13 @@
 package com.planner.utility;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public enum Color {
-    RESET("\033[0m"),
+    DEFAULT("\033[0m"),
 
     BLACK("\033[0;30m"),
     RED("\033[0;31m"),
@@ -26,12 +30,24 @@ public enum Color {
     }
 
     public static void setDefaultColor(Color color){
-        defaultColor = Objects.requireNonNullElse(color, RESET);
+        defaultColor = Objects.requireNonNullElse(color, DEFAULT);
         System.out.print(defaultColor);
+    }
+
+    public static void setDefaultColor(String string){
+        setDefaultColor(getColors().getOrDefault(string, null));
     }
 
     public static Color getDefaultColor(){
         return defaultColor;
+    }
+
+    public static Map<String, Color> getColors() {
+        return new HashMap<>(Arrays.stream(Color.values())
+                .collect(Collectors.toMap(
+                        Enum::name,
+                        color -> color
+                )));
     }
 
     @Override
