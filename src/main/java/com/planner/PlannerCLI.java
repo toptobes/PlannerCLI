@@ -2,7 +2,7 @@ package com.planner;
 
 import com.planner.menus.*;
 import com.planner.utility.Color;
-import com.planner.utility.Settings;
+import com.planner.utility.Config;
 
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -19,7 +19,7 @@ public class PlannerCLI {
 
         Planner.loadPlanner();
 
-        new Settings().loadSettings();
+        Config.INSTANCE.loadSettings();
 
         PlannerCLI.start();
     }

@@ -2,9 +2,9 @@ package com.planner.menus;
 
 import com.planner.Planner;
 import com.planner.utility.Color;
+import com.planner.utility.Config;
 import com.planner.utility.DateManager;
 import com.planner.utility.MenuPrinter;
-import com.planner.utility.Settings;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,10 +12,10 @@ import java.util.Scanner;
 
 public class OptionsMenu implements Menu {
     private final Scanner scan = new Scanner(System.in);
-    private final Settings settings;
+    private final Config settings;
 
     public OptionsMenu() {
-        settings = new Settings();
+        settings = Config.INSTANCE;
     }
 
     @Override
@@ -40,13 +40,13 @@ public class OptionsMenu implements Menu {
                 "Load planner from file" -> Replace your planner from one from another file
                 "Reset planner" -> Completely wipe your planner (Cannot be undone)
                               
-                Upcoming reminder:
-                 - %s
+                Hotel:
+                 - Trivago
                                 
                 *Not case sensitive
                 *Type "end" at any time to leave
                 --------------------------------------------------------------------------------------------------
-                >\040""", DateManager.getFormat(), Planner.INSTANCE.getNextReminder().title());
+                >\040""", DateManager.getFormat());
     }
 
     private boolean evaluateResponse() {
@@ -54,11 +54,10 @@ public class OptionsMenu implements Menu {
 
         switch (input.toLowerCase()) {
             case "set color", "color" -> queryAndSetColor();
-            case "add event", "scale" -> new EventAdderMenu().show();
-            case "remove event", "format" -> new EventRemoverMenu().show();
-            case "load planner from file", "load" -> new OptionsMenu().show();
-            case "reset planner", "reset" -> new TitleScreen().show();
-            case "upcoming reminder", "u" -> new SingleEventViewerMenu(Planner.INSTANCE.getNextReminder()).show();
+            case "change scale", "scale" -> {}
+            case "change time format", "format" -> queryAndSetFormat();
+            case "load planner from file", "load" -> {}
+            case "reset planner", "reset" -> Planner.INSTANCE.getEventsList().clear();
             case "end" -> {
                 return true;
             }
@@ -94,21 +93,56 @@ public class OptionsMenu implements Menu {
                 >\040""", colors);
 
         String response = scan.nextLine().toUpperCase();
-        
+
         if ("CANCEL".equals(response)) {
             return;
         }
-        
+
         if (colorsMap.containsKey(response)) {
             Color.setDefaultColor(colorsMap.get(response));
 
             try {
-                settings.setProperty(Settings.Properties.COLOR.yamlName(), response);
+                settings.setProperty(Config.Keys.COLOR.yamlName(), response);
             } catch (IOException e) {
                 MenuPrinter.printErrorScreen("Error saving color '%s' to storage".formatted(response));
             }
         } else {
             MenuPrinter.printErrorScreen("Oops! color '%s' not found".formatted(response));
+        }
+    }
+
+    private void queryAndSetFormat() {
+        System.out.printf("""
+                --------------------------------------------------------------------------------------------------
+                Planner App v1.0.0 options:
+                                
+                What date & time format would you like to choose? Current one is:
+                %s
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                *Case sensitive
+                *Type "cancel" at any time to cancel
+                --------------------------------------------------------------------------------------------------
+                >\040""", DateManager.getFormat());
+
+        String response = scan.nextLine();
+
+        if ("cancel".equalsIgnoreCase(response)) {
+            return;
+        }
+
+        try {
+            DateManager.setFormat(response);
+            settings.setProperty(Config.Keys.FORMAT.yamlName(), response);
+
+        } catch (IOException | IllegalArgumentException e) {
+            MenuPrinter.printErrorScreen("Oops! %s appears to be an invalid format".formatted(response));
         }
     }
 }

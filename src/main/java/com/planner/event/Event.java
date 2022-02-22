@@ -5,12 +5,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 
 public record Event(EventType type,
                     String title,
                     String description,
-                    long startTime,
-                    long endTime
+                    Instant startTime,
+                    Instant endTime
 ) implements Comparable<Event>, Serializable {
 
     @Serial
@@ -18,7 +19,7 @@ public record Event(EventType type,
 
     @Override
     public int compareTo(@NotNull Event o) {
-        return (startTime > o.startTime) ? 1 : -1;
+        return startTime.compareTo(o.startTime);
     }
 
     public static Event getDefaultEvent() {
@@ -26,8 +27,8 @@ public record Event(EventType type,
                 EventType.EVENT,
                 "Nothing here!",
                 "It seems you don't have any events planned yet... why not plan one now?",
-                0L,
-                0L);
+                Instant.ofEpochSecond(0L),
+                Instant.ofEpochSecond(0L));
     }
 
     @Override
@@ -37,7 +38,7 @@ public record Event(EventType type,
 
         return String.format(
                 " %s %-10s %-33s %s",
-                new DateManager().toFormattedDate(startTime),
+                DateManager.toFormattedDate(startTime),
                 type.getName() + ":",
                 format(title, 35),
                 format(description, 42));

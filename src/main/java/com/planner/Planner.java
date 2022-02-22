@@ -79,6 +79,7 @@ public enum Planner {
     public static void savePlanner() {
         try (var out = new ObjectOutputStream(new FileOutputStream("src/main/resources/planner-save.ser"))) {
             out.writeObject(INSTANCE.eventsList);
+            System.out.println("saving!");
 
         } catch (IOException e) {
             MenuPrinter.printErrorScreen("Oops! Couldn't save the planner... rip");

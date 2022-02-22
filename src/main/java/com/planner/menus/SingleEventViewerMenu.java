@@ -41,10 +41,8 @@ public class SingleEventViewerMenu implements Menu {
     private static void printEventBody(Event event) {
         String date;
 
-        DateManager dm = new DateManager();
-
-        String startDate = dm.toFormattedDate(event.startTime());
-        String endDate = dm.toFormattedDate(event.endTime());
+        String startDate = DateManager.toFormattedDate(event.startTime());
+        String endDate = DateManager.toFormattedDate(event.endTime());
 
         if (startDate.equals(endDate)) {
             date = startDate;

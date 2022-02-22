@@ -7,13 +7,13 @@ import com.planner.utility.DateManager;
 import com.planner.utility.MenuPrinter;
 
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Scanner;
 
 public class EventAdderMenu implements Menu {
 
     Planner planner = Planner.INSTANCE;
     Scanner scan = new Scanner(System.in);
-    DateManager dm = new DateManager();
 
     @Override
     public void show() {
@@ -60,17 +60,17 @@ public class EventAdderMenu implements Menu {
     }
 
     private Event buildEvent(EventType type) throws ParseException {
-        Long startTime;
-        Long endTime;
+        Instant startTime;
+        Instant endTime;
         String title;
         String description;
 
         if ((startTime = getStartTime()) == null
                 || (endTime = getEndTime(type, startTime)) == null
-                || (title = getTitle(type)) == null
+                || (title = getTitle()) == null
                 || (description = getDescription(type)) == null
         ) {
-            MenuPrinter.printCancellationScreen("Cancelled event addition",3 , 1);
+            MenuPrinter.printCancellationScreen("Cancelled event addition", 3, 1);
             return null;
         }
 
@@ -78,7 +78,7 @@ public class EventAdderMenu implements Menu {
 
     }
 
-    private Long getStartTime() throws ParseException {
+    private Instant getStartTime() throws ParseException {
         printMenuWithCancel("" +
                 "Add event:\n" +
                 "When does this event start?\n" +
@@ -90,10 +90,10 @@ public class EventAdderMenu implements Menu {
             return null;
         }
 
-        return dm.toUnixTimestamp(response);
+        return DateManager.toInstant(response);
     }
 
-    private Long getEndTime(EventType type, Long startTime) throws ParseException {
+    private Instant getEndTime(EventType type, Instant startTime) throws ParseException {
         if (!type.hasEndTime()) {
             return startTime;
         }
@@ -114,12 +114,10 @@ public class EventAdderMenu implements Menu {
             return startTime;
         }
 
-        return dm.toUnixTimestamp(response);
+        return DateManager.toInstant(response);
     }
 
-    private String getTitle(EventType type) {
-        if (!type.hasTitle()) return "";
-
+    private String getTitle() {
         printMenuWithCancel("""
                 Add event:
                 What is the title of this event?""");
