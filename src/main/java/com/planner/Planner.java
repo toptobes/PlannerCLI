@@ -95,4 +95,8 @@ public enum Planner {
             MenuPrinter.printErrorScreen("Oops! Couldn't load the planner... rip");
         }
     }
+
+    public void resetPlanner() {
+        eventsList = new ArrayList<>();
+    }
 }
