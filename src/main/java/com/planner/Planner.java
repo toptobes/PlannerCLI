@@ -63,7 +63,6 @@ public enum Planner {
             if (e.type() == EventType.REMINDER) lastReminder = e;
             if (e.type() == EventType.TODO) lastTodo = e;
             if (e.type() == EventType.EVENT) lastEvent = e;
-
         }
 
         return Stream.of(lastReminder, lastTodo, lastEvent)
@@ -76,23 +75,43 @@ public enum Planner {
         return eventsList;
     }
 
+    public Event getEventAt(int index) {
+        return eventsList.get(index);
+    }
+
+    public int size() {
+        return eventsList.size();
+    }
+
     public static void savePlanner() {
-        try (var out = new ObjectOutputStream(new FileOutputStream("src/main/resources/planner-save.ser"))) {
+        savePlannerToFile(null);
+    }
+
+    public static void loadPlanner() {
+        loadPlannerFromFile(null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void loadPlannerFromFile(String filePath) {
+        filePath = (filePath == null) ? "src/main/resources/planner-save.ser" : filePath;
+
+        try (var ois = new ObjectInputStream(new FileInputStream(filePath))) {
+            INSTANCE.eventsList = (ArrayList<Event>) ois.readObject();
+
+        } catch (IOException | ClassNotFoundException e) {
+            MenuPrinter.printErrorScreen("Oops! Couldn't load the planner... rip");
+        }
+    }
+
+    public static void savePlannerToFile(String filePath) {
+        filePath = (filePath == null) ? "src/main/resources/planner-save.ser" : filePath;
+
+        try (var out = new ObjectOutputStream(new FileOutputStream(filePath))) {
             out.writeObject(INSTANCE.eventsList);
             System.out.println("saving!");
 
         } catch (IOException e) {
             MenuPrinter.printErrorScreen("Oops! Couldn't save the planner... rip");
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void loadPlanner() {
-        try (var ois = new ObjectInputStream(new FileInputStream("src/main/resources/planner-save.ser"))) {
-            INSTANCE.eventsList = (ArrayList<Event>) ois.readObject();
-
-        } catch (IOException | ClassNotFoundException e) {
-            MenuPrinter.printErrorScreen("Oops! Couldn't load the planner... rip");
         }
     }
 
